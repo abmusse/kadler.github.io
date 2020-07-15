@@ -1,0 +1,789 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.1.0">Jekyll</generator><link href="https://kadler.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kadler.github.io/" rel="alternate" type="text/html" /><updated>2020-07-15T13:08:02-05:00</updated><id>https://kadler.github.io/feed.xml</id><title type="html">Kevin’s Ramblings</title><subtitle>Ramblings of an Open Source dude working on IBM i.
+</subtitle><author><name>Kevin Adler</name></author><entry><title type="html">IBM i Open Source Updates May 2020</title><link href="https://kadler.github.io/2020/06/22/may-oss-updates.html" rel="alternate" type="text/html" title="IBM i Open Source Updates May 2020" /><published>2020-06-22T00:00:00-05:00</published><updated>2020-06-22T00:00:00-05:00</updated><id>https://kadler.github.io/2020/06/22/may-oss-updates</id><content type="html" xml:base="https://kadler.github.io/2020/06/22/may-oss-updates.html">&lt;p&gt;Well, I mentioned before that the May update was gonna be big and boy is it a doozy!&lt;/p&gt;
+
+&lt;h2 id=&quot;new-packages&quot;&gt;New Packages&lt;/h2&gt;
+
+&lt;h3 id=&quot;logrotate&quot;&gt;logrotate&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://linux.die.net/man/8/logrotate&quot;&gt;logrotate&lt;/a&gt; is a tool that can rotate your logs — you can configure it to automatically rotate, compress, and even remove your log files. This is very useful for log files that may grow very big if left unchecked. The HTTP Server for i supports this out of the box with log cycling, but not all products do this, so having a specialized tool can be useful.&lt;/p&gt;
+
+&lt;p&gt;logrotate is very configurable:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;should archived logs be numbered or dated (and if dated, what format)?&lt;/li&gt;
+  &lt;li&gt;how many logs do you want to keep before removal?&lt;/li&gt;
+  &lt;li&gt;how old should a log get before it’s considered for rotation (daily, weekly, etc)?&lt;/li&gt;
+  &lt;li&gt;how big do you want a log to get before it’s considered for rotation?&lt;/li&gt;
+  &lt;li&gt;Should the logs be compressed and if so, what compresion to use? (default is gzip)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;logrotate&lt;/code&gt; is not a service that runs continuously — instead you must run it periodically. It will then analyze all the log files which it is configured to rotate and rotate the files as needed. You can set it up to run via the job scheduler. Perhaps one day it will even run via cron :wink:.&lt;/p&gt;
+
+&lt;p&gt;This fulfills RFE &lt;a href=&quot;http://www.ibm.com/developerworks/rfe/execute?use_case=viewRfe&amp;amp;CR_ID=125282&quot;&gt;125282&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;postgresql-12&quot;&gt;PostgreSQL 12&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.postgresql.org/&quot;&gt;PostgreSQL&lt;/a&gt; describes itself as&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;a powerful, open source object-relational database system that uses and extends the SQL language combined with many features that safely store and scale the most complicated data workloads. The origins of PostgreSQL date back to 1986 as part of the POSTGRES project at the University of California at Berkeley and has more than 30 years of active development on the core platform.&lt;/p&gt;
+
+  &lt;p&gt;PostgreSQL has earned a strong reputation for its proven architecture, reliability, data integrity, robust feature set, extensibility, and the dedication of the open source community behind the software to consistently deliver performant and innovative solutions.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;PostgreSQL joins SQLite as another open source database available on IBM i from IBM. If you’d like to learn more on how to get started with PostgreSQL on IBM i, Richard Schoen has graciously contributed a &lt;a href=&quot;http://ibm.biz/postgres-ibmi-get-started&quot;&gt;guide&lt;/a&gt; on our examples repo.&lt;/p&gt;
+
+&lt;p&gt;If you’re wondering why you’d want to use PostgreSQL on IBM i when Db2 exists out of the box, well I hear that Jesse Gorzinski will be talking all about that in a future entry on his &lt;a href=&quot;https://www.ibmsystemsmag.com/Power-Systems/open-your-i-blog&quot;&gt;blog&lt;/a&gt; :wink:.&lt;/p&gt;
+
+&lt;h3 id=&quot;udate-alternatives&quot;&gt;udate-alternatives&lt;/h3&gt;
+
+&lt;p&gt;update-alternatives is a utility which manages sets of symlinks of alternative versions of a package. This allows you to install multiple packages which could provide some command, say &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;node&lt;/code&gt;, and then choose &lt;em&gt;which&lt;/em&gt; one of those packages will be the default. This is similar in concept to the rudimentary &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;nodever&lt;/code&gt; script we have provided going all the way back to Node.js v4 shipped in 5733-OPS. update-alternatives is a much more general tool, however, and is more featureful to boot!&lt;/p&gt;
+
+&lt;p&gt;If you’d like to learn more about how &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;update-alternatives&lt;/code&gt; impacts you and what that means for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;nodever&lt;/code&gt;, please check out &lt;a href=&quot;https://www.ibmsystemsmag.com/Power-Systems/05/2020/update-alternatives&quot;&gt;this&lt;/a&gt; guest blog by Mark Irish.&lt;/p&gt;
+
+&lt;h2 id=&quot;package-updates&quot;&gt;Package Updates&lt;/h2&gt;
+
+&lt;h3 id=&quot;node-and-nodever&quot;&gt;Node and nodever&lt;/h3&gt;
+
+&lt;p&gt;As we move to use update-alternatives instead of nodever, all the Node packages (8, 10, 12) were updated. In addition, Node 12 was updated to &lt;a href=&quot;https://nodejs.org/en/blog/release/v12.16.2/&quot;&gt;12.16.2&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;As we are using update-alternatives to manage the various Node versions, nodever was re-written to be a wrapper around update-alternatives. As such, we bumped it to 1.0 and deprecated it. It should still work as it did previously, but we recommend users to use update-alternatives instead.&lt;/p&gt;
+
+&lt;h3 id=&quot;git&quot;&gt;git&lt;/h3&gt;
+
+&lt;p&gt;git was one of our oldest packages which had never been updated. Until now we’ve continued to ship the same version that we shipped with 5733-OPS in 2016!&lt;/p&gt;
+
+&lt;p&gt;No longer, thoug as we’ve updated to the latest&lt;sup&gt;1&lt;/sup&gt; version: &lt;a href=&quot;https://github.blog/2020-03-22-highlights-from-git-2-26/&quot;&gt;2.26.2&lt;/a&gt; fixing &lt;a href=&quot;https://nvd.nist.gov/vuln/detail/CVE-2017-14867&quot;&gt;CVE-2017-14867&lt;/a&gt; and &lt;a href=&quot;https://nvd.nist.gov/vuln/detail/CVE-2020-5260&quot;&gt;CVE-2020-5260&lt;/a&gt; as well as bringing in over 3 years of improvements!&lt;/p&gt;
+
+&lt;p&gt;&lt;sup&gt;1&lt;/sup&gt; well it was when we shipped it :upside_down_face:&lt;/p&gt;
+
+&lt;h3 id=&quot;python-2&quot;&gt;Python 2&lt;/h3&gt;
+
+&lt;p&gt;Python 2 was updated to &lt;a href=&quot;https://blog.python.org/2020/04/python-2718-last-release-of-python-2.html&quot;&gt;2.7.18&lt;/a&gt; which has the distinction of being the &lt;em&gt;very last&lt;/em&gt; version of Python 2 that will &lt;em&gt;ever&lt;/em&gt; be released.&lt;/p&gt;
+
+&lt;p&gt;Python 2 went out of support at the end of 2019 and 2.7.18 was really only a ceremonial release. We do not plan to support it any further, other than what’s necessary to support yum. Many Python packages have already dropped Python 2 support and many more are on their way so if you’re still using Python 2, be warned!&lt;/p&gt;
+
+&lt;h3 id=&quot;other-updates&quot;&gt;Other Updates&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;openssl 1.1 was updated to &lt;a href=&quot;https://www.openssl.org/news/openssl-1.1.1-notes.html&quot;&gt;1.1.1g&lt;/a&gt; for &lt;a href=&quot;https://www.openssl.org/news/vulnerabilities.html#2020-1967&quot;&gt;CVE-2020-1967&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;libuv was updated to &lt;a href=&quot;https://github.com/libuv/libuv/releases/tag/v1.38.0&quot;&gt;1.38&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;rpm was updated to &lt;a href=&quot;https://rpm.org/wiki/Releases/4.13.1&quot;&gt;4.13.1&lt;/a&gt; fixing &lt;a href=&quot;https://nvd.nist.gov/vuln/detail/CVE-2017-7501&quot;&gt;CVE-2017-7501&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;expat was updated to &lt;a href=&quot;&quot;&gt;2.2.9&lt;/a&gt; to fix &lt;a href=&quot;https://nvd.nist.gov/vuln/detail/CVE-2019-15903&quot;&gt;CVE-2019-15903&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;python3-dateutil was updated to &lt;a href=&quot;https://dateutil.readthedocs.io/en/stable/changelog.html#version-2-8-0-2019-02-04&quot;&gt;2.8.0&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;libutil was updated to &lt;a href=&quot;https://github.com/IBM/portlibfori/releases/tag/0.8.0&quot;&gt;0.8.0&lt;/a&gt; bringing initial support for the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;backtrace_symbols_fd&lt;/code&gt; function and a fix from Calvin Buckley to deal with signal handler stack frames.&lt;/li&gt;
+  &lt;li&gt;db2util was updated to &lt;a href=&quot;https://github.com/IBM/ibmi-db2util/releases/tag/v1.0.10&quot;&gt;1.0.10&lt;/a&gt; bringing some JSON and CSV escaping fixes contributed by Liam Allen&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;package-fixes&quot;&gt;Package Fixes&lt;/h2&gt;
+
+&lt;h3 id=&quot;cmake-316&quot;&gt;CMake 3.16&lt;/h3&gt;
+
+&lt;p&gt;We updated CMake to 3.16 back in March. This was quite a major update that changed how it does linking on AIX. Due to this, we had to make some adjustments to get things working again in PASE. It’s still going through some teething issues, so for now we recommend continuing to use cmake 3.7.2 which is also on the repo.&lt;/p&gt;
+
+&lt;h3 id=&quot;libxml2&quot;&gt;libxml2&lt;/h3&gt;
+
+&lt;p&gt;We fixed an issue in xml2-config that causes packages building with libxml2 to require a bunch of unnecessary libraries.&lt;/p&gt;
+
+&lt;h3 id=&quot;yum-utils&quot;&gt;yum-utils&lt;/h3&gt;
+
+&lt;p&gt;I mentioned our changelog updates and yum-plugin-changelog in my &lt;a href=&quot;/2020/01/08/oss-updates.html#changelog-updates&quot;&gt;January update&lt;/a&gt;. Unfortunately, you could only use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;yum changelog all&lt;/code&gt;, as we had no python2-dateutil package, only python3-dateutil. We have now shipped the Python 2 version of dateutil and updated yum-plugin-changelog to require it. This allows you to query changelogs by date range (eg. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;yum changelog 2020-Jan git&lt;/code&gt;) or by most recent count (eg. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;yum changelog 4 python3&lt;/code&gt;).&lt;/p&gt;
+
+&lt;h3 id=&quot;gnu-make&quot;&gt;GNU make&lt;/h3&gt;
+
+&lt;p&gt;When GNU make runs with multiple jobs it tries to synchronize its output using stdout as a file lock. This does not work on IBM i when stdout is a pipe, such as when running in Jenkins or other batch build tools, and produces this spurious message: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fcntl(): Invalid Argument&lt;/code&gt;. Since we know this will never work, the message is disabled an significantly cleans up build logs, especially for recursive make files.&lt;/p&gt;
+
+&lt;h2 id=&quot;closing&quot;&gt;Closing&lt;/h2&gt;
+
+&lt;p&gt;Wow! PostgreSQL 12, &lt;del&gt;nodever 1.0&lt;/del&gt; update-alternatives, a new git version after 3+ years, &lt;em&gt;and&lt;/em&gt; the last Python 2 version &lt;em&gt;ever&lt;/em&gt;? Talk about a big month! What update in May was most important to you?&lt;/p&gt;</content><author><name>Kevin Adler</name></author><summary type="html">Well, I mentioned before that the May update was gonna be big and boy is it a doozy!</summary></entry><entry><title type="html">IBM i Open Source Updates Apr 2020</title><link href="https://kadler.github.io/2020/05/20/apr-oss-updates.html" rel="alternate" type="text/html" title="IBM i Open Source Updates Apr 2020" /><published>2020-05-20T00:00:00-05:00</published><updated>2020-05-20T00:00:00-05:00</updated><id>https://kadler.github.io/2020/05/20/apr-oss-updates</id><content type="html" xml:base="https://kadler.github.io/2020/05/20/apr-oss-updates.html">&lt;p&gt;April seemed very busy to me, but it ended up being rather mild in what we actually delivered. I suspect that means that my May update will be a rather large update. :wink:&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;NOTE: I said last time I was going to update on the other things my team was working on, but April got very busy and then I went on vacation so I wasn’t able to get to it. That post is still coming, but since we’re over halfway through May, it seemed better to get the April updated out first.&lt;/em&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;package-updates&quot;&gt;Package Updates&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;freetype was updated to &lt;a href=&quot;https://sourceforge.net/projects/freetype/files/freetype2/2.10.1/&quot;&gt;2.10.1&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;libuv was updated to &lt;a href=&quot;https://github.com/libuv/libuv/releases/tag/v1.35.0&quot;&gt;1.35&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;package-fixes&quot;&gt;Package Fixes&lt;/h2&gt;
+
+&lt;h3 id=&quot;python-3&quot;&gt;Python 3&lt;/h3&gt;
+
+&lt;p&gt;Python 3 was patched for &lt;a href=&quot;https://nvd.nist.gov/vuln/detail/CVE-2019-18348&quot;&gt;CVE-2019-18348&lt;/a&gt; and &lt;a href=&quot;https://nvd.nist.gov/vuln/detail/CVE-2020-8492&quot;&gt;CVE-2020-8492&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;chsh&quot;&gt;chsh&lt;/h3&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;chsh&lt;/code&gt; was updated to handle a job with CCSID(65535). Previously, this would fail with&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;SQL Error: Character conversion between CCSID 1208 and CCSID 65535 not valid. (sqlstate=57017, sqlcode=-332)
+Error: Unable to set shell
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;gnu-patch&quot;&gt;GNU patch&lt;/h3&gt;
+
+&lt;p&gt;GNU patch was patched to handle having no limit on the number of open files (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ulimit -n unlimited&lt;/code&gt;). This would cause patch to try to allocate gigabytes of memory which would fail and cause patch to exit with&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt; /QOpenSys/pkgs/bin/patch: **** out of memory
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;tmux&quot;&gt;tmux&lt;/h3&gt;
+
+&lt;p&gt;The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;tmux&lt;/code&gt; package was updated to require the correct version of libutil it needed. Previously, it was possible to install &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;tmux&lt;/code&gt; with an older version of libutil and then &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;tmux&lt;/code&gt; would fail to start with missing symbol loader errors.&lt;/p&gt;
+
+&lt;h3 id=&quot;libiconv&quot;&gt;libiconv&lt;/h3&gt;
+
+&lt;p&gt;This is more of a developer fix, but libiconv-devel package now puts the header files for libiconv directly in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/QOpenSys/pkgs/include&lt;/code&gt; instead of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/QOpenSys/pkgs/include/libiconv&lt;/code&gt;. This makes it easier to build packages against GNU libiconv instead of the PASE iconv library. Compatibility symlinks have been created in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/QOpenSys/pkgs/include/libiconv&lt;/code&gt; for existing packages that expect them there.&lt;/p&gt;
+
+&lt;h2 id=&quot;closing&quot;&gt;Closing&lt;/h2&gt;
+
+&lt;p&gt;Well, that was April! Kinda boring, but you know what they say: “April showers, bring May flowers” :wink:.&lt;/p&gt;</content><author><name>Kevin Adler</name></author><summary type="html">April seemed very busy to me, but it ended up being rather mild in what we actually delivered. I suspect that means that my May update will be a rather large update. :wink:</summary></entry><entry><title type="html">IBM i Open Source Updates Mar 2020</title><link href="https://kadler.github.io/2020/04/22/mar-oss-updates.html" rel="alternate" type="text/html" title="IBM i Open Source Updates Mar 2020" /><published>2020-04-22T00:00:00-05:00</published><updated>2020-04-22T00:00:00-05:00</updated><id>https://kadler.github.io/2020/04/22/mar-oss-updates</id><content type="html" xml:base="https://kadler.github.io/2020/04/22/mar-oss-updates.html">&lt;p&gt;Alright folks, strap in because March was a busy month!&lt;/p&gt;
+
+&lt;h2 id=&quot;new-packages&quot;&gt;New Packages&lt;/h2&gt;
+
+&lt;h3 id=&quot;tmux&quot;&gt;tmux&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/tmux/tmux/wiki&quot;&gt;tmux&lt;/a&gt; is a Terminal MUltipleXer. It allows you to create multiple sessions that are persistent - you can disconnect (or become disconnected, eg. wifi drops off) and then reconnect and everything will be as it was before. Within sessions you can have multiple windows which you can switch between and you can also have multiple panes within windows, showing multiple things on the screen at once.&lt;/p&gt;
+
+&lt;p&gt;Here’s an example of a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;tmux&lt;/code&gt; session running that has 2 windows (window1 and window2, with window1 being visible) and 3 panes in window1:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/images/tmux.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;If you want to get started with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;tmux&lt;/code&gt;, here’s some references:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/tmux/tmux/wiki/Getting-Started&quot;&gt;https://github.com/tmux/tmux/wiki/Getting-Started&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://linuxize.com/post/getting-started-with-tmux/&quot;&gt;https://linuxize.com/post/getting-started-with-tmux/&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://tmuxcheatsheet.com/&quot;&gt;https://tmuxcheatsheet.com/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I want to thank Calvin Buckley for figuring out how to make this work on IBM i.&lt;/p&gt;
+
+&lt;h3 id=&quot;python3-paramiko&quot;&gt;python3-paramiko&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://paramiko.org/&quot;&gt;Paramiko&lt;/a&gt; makes it easy to use SSH, SCP, and SFTP from within Python. Why is that important? Two reasons:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;1. Easy remote access to XMLSERVICE&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Traditionally for remote XMLSERVICE access, the options were basically the XMLSERVICE FastCGI plugin to Apache or over ODBC, but both have issues:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;FastCGI requires creating an Apache instance (or glomming on to an existing one); adding security through authentication and SSL must be configured manually&lt;/li&gt;
+  &lt;li&gt;ODBC requires installing the ODBC driver on all your systems as well as configuring DSNs&lt;/li&gt;
+  &lt;li&gt;For IBM i Cloud instances both may require port-forwarding and other setup&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;By-far the easiest way now to make remote XMLSERVICE calls (especially to IBM i instances in IBM Cloud) is through SSH and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;xmlservice-cli&lt;/code&gt; (part of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;itoolkit-utils&lt;/code&gt;). &lt;a href=&quot;https://python-itoolkit.readthedocs.io/en/latest/api.html#ssh-transport&quot;&gt;python-itoolkit&lt;/a&gt; has supported this since v1.6 and requires Paramiko. The upcoming node-itoolkit v1.0 will also support SSH.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;2. Programatic access to remote SSH resources&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Many users use SSH/SFTP as part of their business procedures: pushing or pulling data to/from business partners, etc. Many times due to external requirements, users cannot use key-based authentication and must use passwords. It is difficult to automate SSH and SFTP using passwords so many users resort to things like &lt;a href=&quot;/2020/04/15/feb-oss-updates.html#expect&quot;&gt;expect&lt;/a&gt; or other tools. Paramiko allows you to control exactly how you want to connect and supports password authentication. You control how and where you get the password from: hard code it, read it from an &lt;a href=&quot;https://docs.python.org/3/library/os.html#os.environ&quot;&gt;environment variable&lt;/a&gt;, read it from a database entry, whatever — since it’s all Python, you can do whatever Python allows you to do.&lt;/p&gt;
+
+&lt;p&gt;Here’s an example connecting to a system and running some commands through SSH as well as using SFTP:&lt;/p&gt;
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;hostname&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'ibmi.example.com'&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;username&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'myuser'&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;password&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'mypassword'&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;paramiko&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SSHClient&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ssh&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;ssh&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;set_missing_host_key_policy&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;paramiko&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;AutoAddPolicy&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;ssh&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hostname&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;username&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;password&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;password&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    
+    &lt;span class=&quot;n&quot;&gt;cmd&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'system &quot;DLTF MYLIB/MYFILE&quot;'&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;stdin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;stdout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;stderr&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ssh&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;exec_command&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cmd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;messages&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;stdout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;readlines&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;stderr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;readlines&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+    
+    &lt;span class=&quot;n&quot;&gt;ok&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;False&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;messages&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;startswith&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;CPC2191&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;ok&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;break&lt;/span&gt;
+    
+    &lt;span class=&quot;n&quot;&gt;ftp&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ssh&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;open_sftp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;# Get or put a local file directly
+&lt;/span&gt;    &lt;span class=&quot;n&quot;&gt;ftp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&quot;&quot;C:\myfile.txt&quot;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;/home/kadler/myfile.txt&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;ftp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/home/kadler/myfile.txt&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;s&quot;&gt;&quot;/Users/kadler/myfile.txt&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;# Write a file programatically
+&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ftp&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;file&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/home/kadler/test-sftp&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;w&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;file&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;nb&quot;&gt;file&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;write&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Hello from Paramiko!&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;chsh&quot;&gt;chsh&lt;/h3&gt;
+
+&lt;p&gt;We’ve had numerous ways to set your login shell over the years. In fact, Jesse Gorzinski went over a few in his “Be Like a Turtle!” &lt;a href=&quot;https://ibmsystemsmag.com/Power-Systems/8/2017/be-like-a-turtle&quot;&gt;blog entry&lt;/a&gt;, but none are as easy to use as the new &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;chsh&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;yum &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;chsh
+
+chsh &lt;span class=&quot;nt&quot;&gt;-s&lt;/span&gt; /QOpenSys/pkgs/bin/bash
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;No SQL to look up or execute, just a simple command to change your shell (or any user’s shell that you have &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;*USE&lt;/code&gt; authority to).&lt;/p&gt;
+
+&lt;h3 id=&quot;pigz&quot;&gt;pigz&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://zlib.net/pigz/&quot;&gt;pigz&lt;/a&gt; is a parallelized version of &lt;a href=&quot;http://gzip.org/&quot;&gt;gzip&lt;/a&gt;. If can take advantage of multiple CPU cores to speed up compression over standard &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;gzip&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;This fulfills RFE &lt;a href=&quot;http://www.ibm.com/developerworks/rfe/execute?use_case=viewRfe&amp;amp;CR_ID=123949&quot;&gt;123949&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;libuv&quot;&gt;libuv&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/libuv/libuv&quot;&gt;libuv&lt;/a&gt; is the asynchronous event and I/O library that underpins Node.js. Each Node.js release we’ve shipped going back to Node v0.x has included &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;libuv&lt;/code&gt;. However, it was not made available as a separate library for other packages to use. We’ve found many other open source packages have wanted to make use of this library for their own needs, so we’re now shipping a standalone version.&lt;/p&gt;
+
+&lt;h3 id=&quot;help2man&quot;&gt;help2man&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.gnu.org/software/help2man/&quot;&gt;help2man&lt;/a&gt; is a package which generates &lt;a href=&quot;https://en.wikipedia.org/wiki/Man_page&quot;&gt;“man pages”&lt;/a&gt; from command help text (ie. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;foo --help&lt;/code&gt;). It is used by 3 packages we ship: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;flex&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;libtool&lt;/code&gt;, and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rpmdevtools&lt;/code&gt;. Without this package being available anyone wishing to build these packages from the source rpm would be unable to do so.&lt;/p&gt;
+
+&lt;h3 id=&quot;libevent&quot;&gt;libevent&lt;/h3&gt;
+
+&lt;p&gt;Like &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;libuv&lt;/code&gt;, &lt;a href=&quot;https://libevent.org/&quot;&gt;libevent&lt;/a&gt; is an asynchronous event library. This package seems to have rather unstable compatibility support and regularly changes its ABI. We recommend users use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;libuv&lt;/code&gt; instead, since it has a strong compatibility guarantee and is supported by our team upstream (soon to be included in the CI!). While we would rather packages use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;libuv&lt;/code&gt; over &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;libevent&lt;/code&gt;, we make it available for those packages that require it, such as &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;tmux&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;package-updates&quot;&gt;Package Updates&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;python3 was updated to &lt;a href=&quot;https://docs.python.org/3.6/whatsnew/changelog.html#python-3-6-10-final&quot;&gt;3.6.10&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;cmake was updated to &lt;a href=&quot;https://cmake.org/cmake/help/v3.16/release/3.16.html&quot;&gt;3.16&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;libutil was updated to &lt;a href=&quot;https://github.com/IBM/portlibfori/releases/tag/0.7.0&quot;&gt;0.7.0&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;libarchive was updated to &lt;a href=&quot;https://github.com/libarchive/libarchive/wiki/ReleaseNotes#libarchive-333&quot;&gt;3.3.3&lt;/a&gt; and now supports zstd compression.&lt;/li&gt;
+  &lt;li&gt;activemq was updated to &lt;a href=&quot;https://activemq.apache.org/activemq-51512-release&quot;&gt;5.15.12&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;package-fixes&quot;&gt;Package Fixes&lt;/h2&gt;
+
+&lt;h3 id=&quot;less&quot;&gt;less&lt;/h3&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;less&lt;/code&gt; is now linked with ncurses instead of the PASE curses library. This means that it has access to the ncurses terminfo database. The terminfo database supplied by PASE (files under &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/QOpenSys/usr/share/lib/terminfo/&lt;/code&gt;) only supported two terminals: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;xterm&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;aixterm&lt;/code&gt;. If there was no terminal definition found for your terminal (identified by &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;$TERM&lt;/code&gt;), &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;less&lt;/code&gt; would give the following warning and not work correctly:&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;-bash-4.4$ less test
+WARNING: terminal is not fully functional
+test  (press RETURN)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Newer versions of Linux terminal emulators, Terminal.app in macOS, and WSL on Windows now use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;xterm-256color&lt;/code&gt; instead of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;xterm&lt;/code&gt; to indicate they support more than the original 16 ANSI colors. Additionally, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;tmux&lt;/code&gt; uses &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;screen&lt;/code&gt; for compatibility with GNU screen. However, neither &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;screen&lt;/code&gt; nor &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;xterm-256-color&lt;/code&gt; are terminals that are supported by PASE out of the box, so packages using the PASE curses library will not be able to properly function under these terminals. Linking to ncurses fixes this problem and gives those packages additional features to boot!&lt;/p&gt;
+
+&lt;h3 id=&quot;cmake&quot;&gt;cmake&lt;/h3&gt;
+
+&lt;p&gt;In addition to the version bump, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;cmake&lt;/code&gt; has been enhanced to set the proper &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CMAKE_SYSTEM_PREFIX_PATH&lt;/code&gt; for our IBM i Open Source environment. This means it will now by default search /QOpenSys/pkgs/lib for libraries and /QOpenSys/pkgs/include for header files. In addition, the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ccmake&lt;/code&gt; binary is built with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ncurses&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;tar&quot;&gt;tar&lt;/h3&gt;
+
+&lt;p&gt;A few bugs were fixed in GNU tar that snuck in when we rebuilt for IBM i 7.2:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;--newer&lt;/code&gt; or &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;--after-date&lt;/code&gt; would produce an error like so:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ tar -cf test.tar --newer test mydir
+tar: test: Cannot stat: A system call received a parameter that is not valid.
+tar: Date sample file not found
+Try 'tar --help' or 'tar --usage' for more information.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;-C&lt;/code&gt; would produce an error like so:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;-bash-4.4$ tar -C /home/kadler -c -f test.tar /home/kadler/test
+tar: /home/kadler: Cannot open: Invalid argument
+tar: Error is not recoverable: exiting now
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Both of these issues are now fixed with the latest version of tar-gnu.&lt;/p&gt;
+
+&lt;h2 id=&quot;closing&quot;&gt;Closing&lt;/h2&gt;
+
+&lt;p&gt;Aaaaaaannnnnnnnndddddd we’re all caught up!&lt;/p&gt;
+
+&lt;p&gt;Of course, next week is still April, so I wouldn’t have the April update then, so instead I’ll cover all the non-RPM stuff my team’s been up to.&lt;/p&gt;</content><author><name>Kevin Adler</name></author><summary type="html">Alright folks, strap in because March was a busy month!</summary></entry><entry><title type="html">IBM i Open Source Updates Feb 2020</title><link href="https://kadler.github.io/2020/04/15/feb-oss-updates.html" rel="alternate" type="text/html" title="IBM i Open Source Updates Feb 2020" /><published>2020-04-15T00:00:00-05:00</published><updated>2020-04-15T00:00:00-05:00</updated><id>https://kadler.github.io/2020/04/15/feb-oss-updates</id><content type="html" xml:base="https://kadler.github.io/2020/04/15/feb-oss-updates.html">&lt;p&gt;Wow, hasn’t even been a week! In this blog entry, I’m going to go over what my team delivered in February.&lt;/p&gt;
+
+&lt;h2 id=&quot;new-packages&quot;&gt;New Packages&lt;/h2&gt;
+
+&lt;h3 id=&quot;jq&quot;&gt;jq&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://stedolan.github.io/jq/&quot;&gt;jq&lt;/a&gt; is described as “&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sed&lt;/code&gt; for JSON”. If you don’t know what &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sed&lt;/code&gt; is, it stands for Stream EDitor and basically it allows you to slice and dice text in numerous ways. Equivallently, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;jq&lt;/code&gt; allows you to manipulate JSON. It’s better than &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sed&lt;/code&gt; for this because it understands the structure of JSON data and lets you leverage that structure to manipulate it. If you’d like to see some examples of what it can do, check out their &lt;a href=&quot;https://stedolan.github.io/jq/tutorial/&quot;&gt;tutorial&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;This addresses RFE &lt;a href=&quot;http://www.ibm.com/developerworks/rfe/execute?use_case=viewRfe&amp;amp;CR_ID=128972&quot;&gt;128972&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;expect&quot;&gt;expect&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://core.tcl-lang.org/expect/index&quot;&gt;expect&lt;/a&gt; is a tool that many of our customers use when they need to automate some interactive tool. Many times this is used for doing sftp operations that require filling in passwords. Scott Klement has long had &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;expect&lt;/code&gt; &lt;a href=&quot;https://www.scottklement.com/expect&quot;&gt;available&lt;/a&gt; and we thank Scott for his excellent contributions, but this should make it even easier for users to acquire and use.&lt;/p&gt;
+
+&lt;p&gt;NOTE: We found out after we started building this but before shipping that Calvin Buckley had already built this for &lt;a href=&quot;https://repo.qseco.fr/&quot;&gt;qseco.fr&lt;/a&gt; repository. Because our packages are built differently, we adjusted our package to prevent getting a bad state. If you have already installed &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;jq&lt;/code&gt; from that repository, it will seamlessly upgrade to our version.&lt;/p&gt;
+
+&lt;h3 id=&quot;autossh&quot;&gt;autossh&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.harding.motd.ca/autossh/&quot;&gt;autossh&lt;/a&gt; is a tool for keeping SSH tunnels open - it will automatically restart the tunnel if it crashes. You might think of it as a simplified VPN.&lt;/p&gt;
+
+&lt;p&gt;This addresses RFE &lt;a href=&quot;http://www.ibm.com/developerworks/rfe/execute?use_case=viewRfe&amp;amp;CR_ID=123939&quot;&gt;123939&lt;/a&gt;, where the customer wanted to keep connections open between their IBM i system and systems in Amazon EC2.&lt;/p&gt;
+
+&lt;h3 id=&quot;oniguruma&quot;&gt;oniguruma&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/kkos/oniguruma&quot;&gt;oniguruma&lt;/a&gt; is a regular expression engine used by &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;jq&lt;/code&gt;. While we mostly ported this to support &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;jq&lt;/code&gt;, perhaps other packages can take advantage in the future.&lt;/p&gt;
+
+&lt;h2 id=&quot;package-updates&quot;&gt;Package Updates&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;less was updated to &lt;a href=&quot;http://www.greenwoodsoftware.com/less/news.551.html&quot;&gt;551&lt;/a&gt;. (I really wish I understood their versioning scheme :man_shrugging:)&lt;/li&gt;
+  &lt;li&gt;pcre was updated to &lt;a href=&quot;http://www.rexegg.com/pcre-doc/ChangeLog&quot;&gt;8.43&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;python3-cryptography was updated to &lt;a href=&quot;https://cryptography.io/en/latest/changelog/#v2-8&quot;&gt;2.8&lt;/a&gt; (mostly for something we shipped in March :wink:).&lt;/li&gt;
+  &lt;li&gt;nodejs10 was updated to &lt;a href=&quot;https://nodejs.org/en/blog/release/v10.19.0/&quot;&gt;10.19&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;nodejs12 was updated to &lt;a href=&quot;https://nodejs.org/en/blog/release/v12.15.0/&quot;&gt;12.15&lt;/a&gt; and then to &lt;a href=&quot;https://nodejs.org/en/blog/release/v12.16.1/&quot;&gt;12.16.1&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;closing&quot;&gt;Closing&lt;/h2&gt;
+
+&lt;p&gt;We had quite a few new packages ship this month and some good version updates to existing packages, but there was even more going on that we didn’t get to. Some of it I’ll be talking about in my next blog post. Hopefully, the rest I can cover in my April update.&lt;/p&gt;</content><author><name>Kevin Adler</name></author><summary type="html">Wow, hasn’t even been a week! In this blog entry, I’m going to go over what my team delivered in February.</summary></entry><entry><title type="html">IBM i Open Source Updates Jan 2020</title><link href="https://kadler.github.io/2020/04/10/oss-updates.html" rel="alternate" type="text/html" title="IBM i Open Source Updates Jan 2020" /><published>2020-04-10T00:00:00-05:00</published><updated>2020-04-10T00:00:00-05:00</updated><id>https://kadler.github.io/2020/04/10/oss-updates</id><content type="html" xml:base="https://kadler.github.io/2020/04/10/oss-updates.html">&lt;p&gt;Well, I hadn’t planned to take this long to get out another blog, but the world of OSS moves fast and things have been very busy around here. I’m planning on having more frequent updates than every other month. Let’s start with what my team did in January.&lt;/p&gt;
+
+&lt;h2 id=&quot;package-updates&quot;&gt;Package Updates&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;nodejs (8) was updated to &lt;a href=&quot;https://nodejs.org/en/blog/release/v8.17.0/&quot;&gt;8.17&lt;/a&gt;.&lt;/li&gt;
+  &lt;li&gt;nodejs10 was updated to &lt;a href=&quot;https://nodejs.org/en/blog/release/v10.18.0/&quot;&gt;10.18&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;nodejs12 was updated to &lt;a href=&quot;https://nodejs.org/en/blog/release/v12.14.0/&quot;&gt;12.14&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;NOTE: Node.js 8.17 is the last update for the 8.x version.&lt;/p&gt;
+
+&lt;p&gt;No more updates will be provided, security or otherwise. It is recommended to migrate to a newer version. Node.js v10 will be supported through April 2021 and v12 will be supported April 2022. See &lt;a href=&quot;https://nodejs.org/en/about/releases&quot;&gt;Node.js Releases&lt;/a&gt; page for more info.&lt;/p&gt;
+
+&lt;h2 id=&quot;package-fixes&quot;&gt;Package fixes&lt;/h2&gt;
+
+&lt;h3 id=&quot;nginx&quot;&gt;NGINX&lt;/h3&gt;
+
+&lt;p&gt;NGINX was patched to handle &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ENDTCP&lt;/code&gt; properly. Prior to this, NGINX would keep running if TCP/IP was ended, but any sockets it had open would always return &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;EUNATACH&lt;/code&gt; and its event loop would spin furiously, generating massive error logs. Now, when NGINX receives &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;EUNATACH&lt;/code&gt;, it exits.&lt;/p&gt;
+
+&lt;h3 id=&quot;r&quot;&gt;R&lt;/h3&gt;
+
+&lt;p&gt;R was updated to generate the libR.pc file correctly. This is a &lt;a href=&quot;https://www.freedesktop.org/wiki/Software/pkg-config/&quot;&gt;pkg-config&lt;/a&gt; file used to build R extensions.&lt;/p&gt;
+
+&lt;h3 id=&quot;libarchive&quot;&gt;libarchive&lt;/h3&gt;
+
+&lt;p&gt;libarchive was patched to address &lt;a href=&quot;https://nvd.nist.gov/vuln/detail/CVE-2019-18408&quot;&gt;CVE-2019-18408&lt;/a&gt;. This affects reading RAR format archives. We ship two packages that use libarchive: cmake and rpm.&lt;/p&gt;
+
+&lt;p&gt;For cmake, this is only affects running &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;cmake -E tar tf&lt;/code&gt; or &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;cmake -E tar xf&lt;/code&gt; with a RAR file.&lt;/p&gt;
+
+&lt;p&gt;For rpm, libarchive is only used by the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rpm2archive&lt;/code&gt; command. This command only &lt;em&gt;writes&lt;/em&gt; to files and never reads, so it is not affected.&lt;/p&gt;
+
+&lt;p&gt;Regardless, it is always recommended to update for known security vulnerabilities.&lt;/p&gt;
+
+&lt;h2 id=&quot;bootstrap-updates&quot;&gt;Bootstrap updates&lt;/h2&gt;
+
+&lt;p&gt;While &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;yum&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rpm&lt;/code&gt; can install and update all the rpms we provide, they are not shipped with the IBM i OS itself. So if you need to have &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;yum&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rpm&lt;/code&gt; installed to install &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;yum&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rpm&lt;/code&gt;, how do you get it installed in the first place? Seems like a classic Catch-22!&lt;/p&gt;
+
+&lt;p&gt;To get around this problem we need to “bootstrap” the environment. This bootstrap environment is an installation of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;yum&lt;/code&gt; and its dependencies that are in a separate format that a different installer can install. This is what we use when using either the ACS Open Source Package Management GUI or the offline install method and in January, we did some big updates to it.&lt;/p&gt;
+
+&lt;p&gt;As we have now migrated to all packages being built for 7.2+, the bootstrap was updated with these packages built on 7.2. This now means you absolutely need 7.2 or later to install any of our open source environment. Sorry 7.1, but it’s been 600+ days (700+ at the time of writing) since it went out of support. To prevent users from accidentally installing the 7.2 environment on a 7.1 system, a version check was added to the bootstrap installer. Additionally, a check was added to prevent accidentally running the bootstrap on an already bootstrapped system. Running the boostrap more than once on the same system is almost never needed and will likely cause more problems than when you started.&lt;/p&gt;
+
+&lt;p&gt;Finally, the bootstrap install now includes &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ca-certificates&lt;/code&gt;/&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ca-certificates-mozilla&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;yum-utils&lt;/code&gt;, and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;coreutils-gnu&lt;/code&gt; packages by default.&lt;/p&gt;
+
+&lt;h3 id=&quot;ca-certificates&quot;&gt;ca-certificates&lt;/h3&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ca-certificates&lt;/code&gt; is a framework for managing various CA certificates in a central location. You can have multiple providers of certificates as well as multiple consumers of these certificates in different formats. Out of the box, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ca-certificates&lt;/code&gt; knows how to generate trust stores for OpenSSL as well as Java Keystore (jks) files, but you can also add your own scripts to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/QOpenSys/etc/ca-certificates/update.d&lt;/code&gt; to support different formats or trust store locations. Add your own internal or business partner’s CA certificates in PEM or DER format to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/QOpenSys/etc/pki/trust/anchors&lt;/code&gt; and run &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;update-ca-certificates&lt;/code&gt; and all the configured trust stores will be updated for you.&lt;/p&gt;
+
+&lt;p&gt;Of course, having a centralized management framework for CA certificates doesn’t do a whole lot if you don’t have any certificates. That’s why we provide &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ca-certificates-mozilla&lt;/code&gt; and automatically install it by default now. These are the same set of CA certificates provided by Mozilla with Firefox and many Linux distributions uses this same set of trusted CAs.&lt;/p&gt;
+
+&lt;p&gt;If you don’t want to trust these CAs, you can remove &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ca-certificates-mozilla&lt;/code&gt; at any point. You can also more selectively distrust CAs by adding certificates to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/QOpenSys/etc/pki/trust/blacklist&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;By providing these packages, the out of the box experience should be much better:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;git&lt;/code&gt; now works out of the box with GitHub, BitBucket, or GitLab HTTPS URLs and you no longer need to disable SSL verification&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;curl&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;wget&lt;/code&gt; should be able to retrieve most any HTTPS URL on the public internet&lt;/li&gt;
+  &lt;li&gt;Python, Node.js, and other packages using OpenSSL can properly validate HTTPS requests&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;yum-utils&quot;&gt;yum-utils&lt;/h3&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;yum-utils&lt;/code&gt; is a collection of plugins for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;yum&lt;/code&gt; and adds the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;yum-config-manager&lt;/code&gt; utility. This utility makes it much easier to add or remove repositories, including third-party repos. You can browse the growing list of third-party repositories &lt;a href=&quot;https://bitbucket.org/ibmi/opensource/src/master/docs/yum/3RD_PARTY_REPOS.md&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;coreutils-gnu&quot;&gt;coreutils-gnu&lt;/h3&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;coreutils-gnu&lt;/code&gt; is a set of core UNIX utilities like &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ls&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;cp&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;df&lt;/code&gt;, etc. While PASE already includes most of these utilities, there are some which PASE does not include (eg. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;readlink&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;base64&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;md5sum&lt;/code&gt;, …) and the GNU versions usually have more features than the standard UNIX versions.&lt;/p&gt;
+
+&lt;p&gt;Users of Linux or other operating systems will find the GNU versions more familiar and all users should find them more comfortable and user-friendly.&lt;/p&gt;
+
+&lt;h2 id=&quot;wrapup&quot;&gt;Wrapup&lt;/h2&gt;
+
+&lt;p&gt;And that does it for January. Come back next time for February updates and stay safe out there!&lt;/p&gt;</content><author><name>Kevin Adler</name></author><summary type="html">Well, I hadn’t planned to take this long to get out another blog, but the world of OSS moves fast and things have been very busy around here. I’m planning on having more frequent updates than every other month. Let’s start with what my team did in January.</summary></entry><entry><title type="html">IBM i Open Source Updates Dec 2019</title><link href="https://kadler.github.io/2020/01/08/oss-updates.html" rel="alternate" type="text/html" title="IBM i Open Source Updates Dec 2019" /><published>2020-01-08T00:00:00-06:00</published><updated>2020-01-08T00:00:00-06:00</updated><id>https://kadler.github.io/2020/01/08/oss-updates</id><content type="html" xml:base="https://kadler.github.io/2020/01/08/oss-updates.html">&lt;p&gt;It’s a new year and so I’m finally getting around to doing something that I’ve wanted to do for a while now: write a blog series about various updates about what the IBM i OSS team is doing. I’m not sure the cadence of these updates, but I’ll try to keep them updated periodically. For this first one, I’m going to handle it a bit differently as the team has just gotten back from the holiday break so there’s not much to share so far for this year, but November and December were very busy, so that’s what I’m going to talk about here.&lt;/p&gt;
+
+&lt;h2 id=&quot;new-packages&quot;&gt;New Packages&lt;/h2&gt;
+
+&lt;p&gt;Let’s start with the fun part: new stuff!&lt;/p&gt;
+
+&lt;h3 id=&quot;gnu-cpio&quot;&gt;GNU CPIO&lt;/h3&gt;
+
+&lt;p&gt;In December, we finally shipped cpio-gnu. We had originally planned to ship this with the original yum release back in 2018, but due to an oversight, it was missed but we finally got it shipped. cpio-gnu is the &lt;a href=&quot;https://www.gnu.org/software/cpio/&quot;&gt;GNU&lt;/a&gt; version of the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;cpio&lt;/code&gt; utility, supplementing the PASE version. It is more compatible with open source packages which generate CPIO archives, most notably &lt;a href=&quot;http://ftp.rpm.org/max-rpm/s1-rpm-miscellania-rpm2cpio.html&quot;&gt;rpm2cpio&lt;/a&gt; which might be useful if you wanted to, say, extract an AIX rpm without having to deal with getting rpm and yum to install these foreign rpms.&lt;/p&gt;
+
+&lt;h3 id=&quot;pyodbc&quot;&gt;PyODBC&lt;/h3&gt;
+
+&lt;p&gt;We now have an rpm packaging &lt;a href=&quot;https://github.com/mkleehammer/pyodbc&quot;&gt;PyODBC&lt;/a&gt; for Python 3. This makes it &lt;em&gt;vastly&lt;/em&gt; easier to get going with ODBC on IBM i, as previously you had to install a bunch of development tools and patch PyODBC to fix a few bugs. Instead, you can now say &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;yum install python3-pyodbc&lt;/code&gt; and get going right away!&lt;/p&gt;
+
+&lt;p&gt;Note: We will &lt;em&gt;not&lt;/em&gt; be providing a PyODBC rpm for Python 2. Python 2 is now &lt;a href=&quot;https://pythonclock.org/&quot;&gt;EOL&lt;/a&gt; and you should be using Python 3 instead.&lt;/p&gt;
+
+&lt;h2 id=&quot;package-updates&quot;&gt;Package Updates&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;OpenSSL 1.1 updated to &lt;a href=&quot;https://www.openssl.org/news/openssl-1.1.1-notes.html&quot;&gt;1.1.1d&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;OpenSSL 1.0.2 updated to &lt;a href=&quot;https://www.openssl.org/news/openssl-1.0.2-notes.html&quot;&gt;1.0.2t&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;bzip2 patched for various CVE and other bug fixes&lt;/li&gt;
+  &lt;li&gt;libpng updated to 1.6.37 to fix various CVEs&lt;/li&gt;
+  &lt;li&gt;python3-ibm_db and python2-ibm_db updated to &lt;a href=&quot;https://github.com/kadler/python-ibmdb/releases/tag/2.0.5.12&quot;&gt;2.0.5.12&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;rpm build with libarchive, enabling use of &lt;a href=&quot;http://manpages.ubuntu.com/manpages/xenial/man8/rpm2archive.8.html&quot;&gt;rpm2archive&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;wget updated to &lt;a href=&quot;http://git.savannah.gnu.org/cgit/wget.git/tree/NEWS?h=v1.20.3&amp;amp;id=a220ead43505bc3e0ea8efb1572919111dbbf6dc&quot;&gt;1.20.3&lt;/a&gt; to work with OpenSSL 1.1&lt;/li&gt;
+  &lt;li&gt;curl updated to &lt;a href=&quot;https://curl.haxx.se/changes.html#7_65_3&quot;&gt;7.65.3&lt;/a&gt; to work with OpenSSL 1.1&lt;/li&gt;
+  &lt;li&gt;openssh updated to &lt;a href=&quot;https://www.openssh.com/txt/release-8.1&quot;&gt;8.1p1&lt;/a&gt; to work with OpenSSL 1.1&lt;/li&gt;
+  &lt;li&gt;Node.js v12 upated to &lt;a href=&quot;https://nodejs.org/en/blog/release/v12.13.0/&quot;&gt;v12.13.0&lt;/a&gt;, also patched to fix &lt;a href=&quot;https://bitbucket.org/ibmi/opensource/issues/80/issues-with-qp2term-and-nodejs-v1281&quot;&gt;bug&lt;/a&gt; causing crashes when running in a 5250&lt;/li&gt;
+  &lt;li&gt;libutil updated to &lt;a href=&quot;https://github.com/IBM/portlibfori/releases/tag/0.6.2&quot;&gt;0.6.2&lt;/a&gt; to fix a bug affecting Jupyter&lt;/li&gt;
+  &lt;li&gt;Python 2 and 3 patched to fix CVE-2019-16935&lt;/li&gt;
+  &lt;li&gt;python3-pip now ships with a default pip.conf to supress the pesky upgrade notification&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;openssl-11-migration&quot;&gt;OpenSSL 1.1 Migration&lt;/h2&gt;
+
+&lt;p&gt;Back in August, I wrote a &lt;a href=&quot;https://ibmsystemsmag.com/Power-Systems/08/2019/RPMs-and-YUM-on-IBM-i-7-1&quot;&gt;guest entry&lt;/a&gt; on Jesse’s blog to explain that all IBM i 7.1 rpms would be replaced with IBM i 7.2 rpms and why. As a refresher, the change was motivated by OpenSSL 1.0.2 going out of support at the &lt;a href=&quot;https://www.openssl.org/policies/releasestrat.html&quot;&gt;end of 2019&lt;/a&gt; and our OpenSSL 1.1 build only working on IBM i 7.2. To keep users protected, we had to migrate anything using OpenSSL 1.0.2 to OpenSSL 1.1, which included the package manager yum. Here’s a list of packages that got updated to OpenSSL 1.1:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;curl&lt;/li&gt;
+  &lt;li&gt;git&lt;/li&gt;
+  &lt;li&gt;libarchive&lt;/li&gt;
+  &lt;li&gt;lftp&lt;/li&gt;
+  &lt;li&gt;python2&lt;/li&gt;
+  &lt;li&gt;python2-pycurl&lt;/li&gt;
+  &lt;li&gt;python3&lt;/li&gt;
+  &lt;li&gt;python3-cryptography&lt;/li&gt;
+  &lt;li&gt;openssh&lt;/li&gt;
+  &lt;li&gt;wget&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;You can now safely remove OpenSSL 1.0.2 libraries with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;yum remove libopenssl1_0_0&lt;/code&gt;. Now, if we could get rid of Python 2…&lt;/p&gt;
+
+&lt;p&gt;Note: For the most part the RPM dependencies should make sure that everything is consistent when updating, but it’s possible something was missed. So, if you get odd OpenSSL errors from any of these packages you might want to make sure they’re at the latest versions.&lt;/p&gt;
+
+&lt;h2 id=&quot;ibm-i-72-rebuild&quot;&gt;IBM i 7.2 Rebuild&lt;/h2&gt;
+
+&lt;p&gt;As mentioned in the previously mentioned blog post, we planned to rebuild all rpms on IBM i 7.2 by September 24th. We ran in to a few unexpected surprises along the way to doing so, so we only got a few packages rebuilt by then. We finally managed to rebuild all the packages by the end of the year. The repository is now 100% 7.2 rpms and along the way we cleaned up a few duplicate packages in there as well.&lt;/p&gt;
+
+&lt;p&gt;A side benefit of rebuilding all the packages is that we now have source rpms for all packages. When we originally started building rpms, we did not save the source rpms and so they were not published to the repository. Any of those packages that had been updated since then would have had source rpms published, but there were a few packages which never saw an update and so were still missing source rpms - this has now been fixed.&lt;/p&gt;
+
+&lt;h2 id=&quot;changelog-updates&quot;&gt;Changelog Updates&lt;/h2&gt;
+
+&lt;p&gt;While we were rebuilding all the packages on IBM i 7.2, it seemed a good time to go back and add changelogs to all the packages. A package’s changelog can be viewed with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rpm&lt;/code&gt; using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rpm -q --changelog &amp;lt;package name&amp;gt;&lt;/code&gt;, eg. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rpm -q --changelog yum&lt;/code&gt;. Alternatively, you can install &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;yum-plugin-changelog&lt;/code&gt; to view changelogs with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;yum&lt;/code&gt;, either during install/upgrade/etc, eg. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;yum upgrade --changelog&lt;/code&gt; or to view a specific package’s changelog, eg. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;yum changelog all yum&lt;/code&gt;. For more information on the yum-changelog plugin, refer to the &lt;a href=&quot;https://linux.die.net/man/1/yum-changelog&quot;&gt;man page&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;license-updates&quot;&gt;License Updates&lt;/h2&gt;
+
+&lt;p&gt;Again, while rebuilding all the packages we felt it was a good time to do more housekeeping. All of our packages were updated to use &lt;a href=&quot;https://spdx.org/licenses&quot;&gt;SPDX&lt;/a&gt; license identifiers. So instead of “BSD” or “GPL”, we use a more specific license identifier like “BSD-3-Clause” or “GPL-3.0-or-later”. If you or your company are worried about licensing issues with Open Source, this should make it a little easier to identify your licensing restrictions and obligations; if not, you can keep ignoring the license field.&lt;/p&gt;
+
+&lt;p&gt;In addition, we found that a few of our packages had incorrect licenses listed and were fixed.&lt;/p&gt;
+
+&lt;h3 id=&quot;gpl-licence-changes&quot;&gt;GPL Licence Changes&lt;/h3&gt;
+
+&lt;p&gt;A final thing to note here: we have changed how we handle GPL packages. A common part of the GPL text is that it gives the option to allow distribution under “any later version”, eg. the GPL version 3 &lt;a href=&quot;https://www.gnu.org/licenses/gpl-3.0.en.html&quot;&gt;says&lt;/a&gt;:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Each version is given a distinguishing version number. If the Program specifies that a certain numbered version of the GNU General Public License “or any later version” applies to it, you have the option of following the terms and conditions either of that numbered version or of any later version published by the Free Software Foundation. If the Program does not specify a version number of the GNU General Public License, you may choose any version ever published by the Free Software Foundation.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Previously, we would distribute a GPL package under the version noted in the package license, even if the package allowed it to be distributed under a later version of the GPL. So if a package was distributed under the GPL version 2, we would also distribute it under the GPL version 2, &lt;em&gt;even if&lt;/em&gt; the license allowed us to distribute it under the GPL version 3. However, our lawyers prefer GPL version 3 to version 2 and it makes our lives easier as well. With that in mind, &lt;em&gt;when possible&lt;/em&gt; we will distribute any GPL v2 “or later” software under GPL v3 “or later”. We do provide some GPL v2-only packages, so those and any of their dependencies will still be distributed under the GPL v2.&lt;/p&gt;</content><author><name>Kevin Adler</name></author><summary type="html">It’s a new year and so I’m finally getting around to doing something that I’ve wanted to do for a while now: write a blog series about various updates about what the IBM i OSS team is doing. I’m not sure the cadence of these updates, but I’ll try to keep them updated periodically. For this first one, I’m going to handle it a bit differently as the team has just gotten back from the holiday break so there’s not much to share so far for this year, but November and December were very busy, so that’s what I’m going to talk about here.</summary></entry><entry><title type="html">Bash Command Oddities</title><link href="https://kadler.github.io/2018/10/02/bash-command-oddities.html" rel="alternate" type="text/html" title="Bash Command Oddities" /><published>2018-10-02T00:00:00-05:00</published><updated>2018-10-02T00:00:00-05:00</updated><id>https://kadler.github.io/2018/10/02/bash-command-oddities</id><content type="html" xml:base="https://kadler.github.io/2018/10/02/bash-command-oddities.html">&lt;p&gt;Sometimes when using bash, you can run in to an oddity where it keeps running the “wrong” command. Let’s go through a scenario:&lt;/p&gt;
+
+&lt;h2 id=&quot;it-was-a-dark-and-stormy-night&quot;&gt;It was a dark and stormy night…&lt;/h2&gt;
+
+&lt;p&gt;You want to install a Python package and you’re using the new Python 3.6 installed via yum:&lt;/p&gt;
+
+&lt;div class=&quot;language-text highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bash-4.4$ export PATH=/QOpenSys/pkgs/bin:$PATH
+bash-4.4$ python3 --version
+Python 3.6.6
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;When you install &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;xlsxwriter&lt;/code&gt;, though it can’t be found:&lt;/p&gt;
+
+&lt;div class=&quot;language-text highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bash-4.4$ pip3 install xlsxwriter
+Downloading/unpacking xlsxwriter
+  Downloading XlsxWriter-1.1.1-py2.py3-none-any.whl (142kB): 142kB downloaded
+Installing collected packages: xlsxwriter
+Successfully installed xlsxwriter
+Cleaning up...
+bash-4.4$ python3
+Python 3.6.6 (default, Jul  7 2018, 22:45:07) 
+[GCC 6.3.0] on aix6
+Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.
+&amp;gt;&amp;gt;&amp;gt; import xlsxwriter
+Traceback (most recent call last):
+  File &quot;&amp;lt;stdin&amp;gt;&quot;, line 1, in &amp;lt;module&amp;gt;
+ModuleNotFoundError: No module named 'xlsxwriter'
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Hmm… You investigate a bit and discover that &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;pip3&lt;/code&gt; is the 5733-OPS version of pip!&lt;/p&gt;
+
+&lt;div class=&quot;language-text highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bash-4.4$ pip3 --version
+pip 1.5.6 from /QOpenSys/QIBM/ProdData/OPS/Python3.4/lib/python3.4/site-packages (python 3.4)
+bash-4.4$ which pip3
+/QOpenSys/usr/bin/pip3
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;You know what you need to do, install &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;pip3&lt;/code&gt; with yum:&lt;/p&gt;
+
+&lt;div class=&quot;language-text highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bash-4.4$ yum install -y python3-pip
+Setting up Install Process
+Resolving Dependencies
+--&amp;gt; Running transaction check
+---&amp;gt; Package python3-pip.noarch 0:9.0.1-2 will be installed
+--&amp;gt; Finished Dependency Resolution
+
+Dependencies Resolved
+
+===============================================================================================================
+ Package                     Arch                   Version                  Repository                   Size
+===============================================================================================================
+Installing:
+ python3-pip                 noarch                 9.0.1-2                  ibm                 1.9 M
+
+Transaction Summary
+===============================================================================================================
+Install       1 Package
+
+Total size: 1.9 M
+Installed size: 5.9 M
+Downloading Packages:
+Running Transaction Check
+Running Transaction Test
+Transaction Test Succeeded
+Running Transaction
+  Installing : python3-pip-9.0.1-2.noarch                                                                  1/1 
+
+Installed:
+  python3-pip.noarch 0:9.0.1-2                                                                                 
+
+Complete!
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;crisis-averted-or-was-it&quot;&gt;Crisis averted. Or was it?&lt;/h2&gt;
+
+&lt;p&gt;But still, it’s using the OPS version!&lt;/p&gt;
+
+&lt;div class=&quot;language-text highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bash-4.4$ pip3 --version
+pip 1.5.6 from /QOpenSys/QIBM/ProdData/OPS/Python3.4/lib/python3.4/site-packages (python 3.4)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;What the heck?&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;This is because bash caches command name lookups. So when you first run a command, it looks up the name via the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;$PATH&lt;/code&gt; and then caches it away in a hash for later lookup later. If you install a different command with the same name in to a folder earlier on the path, it won’t know and will continue to use the older version. It’s deceiving because the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;which&lt;/code&gt; command will show the right output:&lt;/p&gt;
+
+&lt;div class=&quot;language-text highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bash-4.4$ which pip3
+/QOpenSys/pkgs/bin/pip3
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;This is because &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;which&lt;/code&gt; is a separate command and not part of bash, so it doesn’t know anything about bash’s cache and &lt;em&gt;always&lt;/em&gt; uses the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;$PATH&lt;/code&gt; to find the binary.&lt;/p&gt;
+
+&lt;p&gt;Instead, we can use the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;type&lt;/code&gt; bash built-in to determine where it’s coming from:&lt;/p&gt;
+
+&lt;div class=&quot;language-text highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bash-4.4$ type pip3
+pip3 is hashed (/QOpenSys/usr/bin/pip3)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Here, pip3 has already been found at &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/QOpenSys/usr/bin/pip3&lt;/code&gt; and is being cached there. To clear the cache, use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;hash -r&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-text highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bash-4.4$ hash -r
+bash-4.4$ type pip3
+pip3 is /QOpenSys/pkgs/bin/pip3
+bash-4.4$ pip3 --version
+pip 9.0.1 from /QOpenSys/pkgs/lib/python3.6/site-packages (python 3.6)
+bash-4.4$ type pip3
+pip3 is hashed (/QOpenSys/pkgs/bin/pip3)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;After resetting the lookup cache, pip3 is no longer hashed and bash does a normal &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;$PATH&lt;/code&gt; lookup. Only after actully running it, will it get hashed again.&lt;/p&gt;
+
+&lt;h2 id=&quot;why-have-i-never-seen-this-before&quot;&gt;Why have I never seen this before?&lt;/h2&gt;
+
+&lt;p&gt;Note that when you change the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;$PATH&lt;/code&gt; variable, bash is smart enough to invalidate its cache. This means it’s pretty rare to hit this issue. In order to encounter it you’d have to:
+1) run an unqualified command which already exists
+2) have that command be found in a directory later on the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;$PATH&lt;/code&gt;
+3) install a different version of that command in to a directory earlier on the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;$PATH&lt;/code&gt; than the previous command&lt;/p&gt;
+
+&lt;h2 id=&quot;got-any-more-info&quot;&gt;Got any more info?&lt;/h2&gt;
+
+&lt;p&gt;Sure. The docs for the hash (and other built-ins) are &lt;a href=&quot;https://www.gnu.org/software/bash/manual/html_node/Bourne-Shell-Builtins.html&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;what-about-shells-other-than-bash&quot;&gt;What about shells other than bash?&lt;/h2&gt;
+
+&lt;p&gt;Good question! For &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;zsh&lt;/code&gt;, the command is &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rehash&lt;/code&gt;. For other shells, I’m not sure.&lt;/p&gt;</content><author><name>Kevin Adler</name></author><summary type="html">Sometimes when using bash, you can run in to an oddity where it keeps running the “wrong” command. Let’s go through a scenario:</summary></entry><entry><title type="html">Using System Naming in Python ibm_db</title><link href="https://kadler.github.io/2018/09/28/using-system-naming-in-ibm_db.html" rel="alternate" type="text/html" title="Using System Naming in Python ibm_db" /><published>2018-09-28T00:00:00-05:00</published><updated>2018-09-28T00:00:00-05:00</updated><id>https://kadler.github.io/2018/09/28/using-system-naming-in-ibm_db</id><content type="html" xml:base="https://kadler.github.io/2018/09/28/using-system-naming-in-ibm_db.html">&lt;p&gt;Like last-week’s post about commitment control in Python ibm_db, you may run in to this unexpected error as well:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cur&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;callproc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'qcmdexc'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ADDLIBLE QIWS'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,))&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ADDLIBLE QIWS'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cur&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;execute&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;select * from qcustcdt&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Traceback&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;most&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;recent&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;call&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;last&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;/QOpenSys/pkgs/lib/python3.6/site-packages/ibm_db_dbi.py&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1254&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_prepare_helper&lt;/span&gt;
+    &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;stmt_handler&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ibm_db&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;prepare&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;conn_handler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;operation&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;Exception&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;QCUSTCDT&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;KADLER&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;type&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;FILE&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;found&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SQLSTATE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;42704&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SQLCODE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;204&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;During&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;handling&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;of&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;above&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;exception&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;another&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;exception&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;occurred&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;Traceback&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;most&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;recent&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;call&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;last&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;&amp;lt;stdin&amp;gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;module&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;/QOpenSys/pkgs/lib/python3.6/site-packages/ibm_db_dbi.py&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1394&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;execute&lt;/span&gt;
+    &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_prepare_helper&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;operation&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;/QOpenSys/pkgs/lib/python3.6/site-packages/ibm_db_dbi.py&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1257&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_prepare_helper&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;raise&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;messages&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;ibm_db_dbi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ProgrammingError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ibm_db_dbi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ProgrammingError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;QCUSTCDT&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;KADLER&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;type&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;FILE&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;found&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SQLSTATE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;42704&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SQLCODE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;204&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The problem is that ibm_db uses the IBM CLI default of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;*SQL&lt;/code&gt; naming instead of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;*SYS&lt;/code&gt; naming, so the library list is not used for unqualified look-ups.&lt;/p&gt;
+
+&lt;p&gt;Again, there’s two ways to fix this:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Modify your SQL to qualify the table with the correct schema&lt;/li&gt;
+  &lt;li&gt;Tell ibm_db to use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;*SYS&lt;/code&gt; naming mode&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Luckily, ibm_db allows the user to set arbitrary IBM CLI statement and connection attributes using the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;set_option&lt;/code&gt; method on the cursor or connection object. The only problem with this is you need to know what the integer values are for the attributes and their values, which means digging through IBM CLI header files or looking through the documentation.&lt;/p&gt;
+
+&lt;p&gt;With ibm_db 2.0.5.7 and higher, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SQL_ATTR_DBC_SYS_NAMING&lt;/code&gt; is now defined by the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ibm_db_dbi&lt;/code&gt; module for easy reference. The values you can use are:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SQL_FALSE&lt;/code&gt;: use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;*SQL&lt;/code&gt; naming (default)&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SQL_TRUE&lt;/code&gt;: use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;*SYS&lt;/code&gt; naming&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Here’s an example using this new functionality:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;ibm_db_dbi&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db2&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;conn&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;conn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;set_option&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SQL_ATTR_DBC_SYS_NAMING&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SQL_TRUE&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;cur&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;conn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cursor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;cur&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;callproc&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'qcmdexc'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ADDLIBLE QIWS'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,))&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;cur&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;execute&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;select * from qcustcdt&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;row&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cur&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;In fact, traditional IBM i users may want to use this as a standard template when using ibm_db:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;ibm_db_dbi&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db2&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;options&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;db2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SQL_ATTR_TXN_ISOLATION&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SQL_TXN_NO_COMMIT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;db2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SQL_ATTR_DBC_SYS_NAMING&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SQL_TRUE&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;conn&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;conn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;set_option&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;options&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>Kevin Adler</name></author><summary type="html">Like last-week’s post about commitment control in Python ibm_db, you may run in to this unexpected error as well:</summary></entry><entry><title type="html">Using Python ibm_db with Un-journaled Tables</title><link href="https://kadler.github.io/2018/09/20/using-python-ibm-db-with-un-journaled-files.html" rel="alternate" type="text/html" title="Using Python ibm_db with Un-journaled Tables" /><published>2018-09-20T00:00:00-05:00</published><updated>2018-09-20T00:00:00-05:00</updated><id>https://kadler.github.io/2018/09/20/using-python-ibm-db-with-un-journaled-files</id><content type="html" xml:base="https://kadler.github.io/2018/09/20/using-python-ibm-db-with-un-journaled-files.html">&lt;p&gt;When using the Python ibm_db package to interact with the Db2 for i database, you may run in to this error:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cur&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;execute&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'insert into qtemp.foo values(1)'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Traceback&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;most&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;recent&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;call&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;last&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;/QOpenSys/pkgs/lib/python3.6/site-packages/ibm_db_dbi.py&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1311&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_execute_helper&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;return_value&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ibm_db&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;execute&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;stmt_handler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;Exception&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Statement&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Execute&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Failed&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FOO&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;QTEMP&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;valid&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;operation&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SQLSTATE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;55019&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SQLCODE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;7008&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;During&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;handling&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;of&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;above&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;exception&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;another&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;exception&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;occurred&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;Traceback&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;most&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;recent&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;call&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;last&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;&amp;lt;stdin&amp;gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;module&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;/QOpenSys/pkgs/lib/python3.6/site-packages/ibm_db_dbi.py&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1396&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;execute&lt;/span&gt;
+    &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;_execute_helper&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parameters&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;/QOpenSys/pkgs/lib/python3.6/site-packages/ibm_db_dbi.py&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1321&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_execute_helper&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;raise&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;messages&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;ibm_db_dbi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ProgrammingError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ibm_db_dbi&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ProgrammingError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Statement&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Execute&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Failed&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;FOO&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;QTEMP&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;valid&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;operation&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SQLSTATE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;55019&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SQLCODE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;7008&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The problem is that tables in un-journaled libraries cannot be modified when run under commitment control and ibm_db uses the IBM CLI default of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;*CHG&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;There’s two ways to fix this:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Modify your SQL to specify &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;WITH NC&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Disable commitment control in ibm_db&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Luckily, ibm_db allows the user to set arbitrary IBM CLI statement and connection attributes using the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;set_option&lt;/code&gt; method on the cursor or connection object. The only problem with this is you need to know what the integer values are for the attributes and their values, which means digging through IBM CLI header files or looking through the documentation.&lt;/p&gt;
+
+&lt;p&gt;With ibm_db 2.0.5.7 and higher, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SQL_ATTR_TXN_ISOLATION&lt;/code&gt; and the values associated with it are now defined by the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ibm_db_dbi&lt;/code&gt; module for easy reference. The values you can use are:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SQL_TXN_READ_UNCOMMITTED&lt;/code&gt; (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;*CHG&lt;/code&gt; or &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;*UR&lt;/code&gt;)&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SQL_TXN_READ_COMMITTED&lt;/code&gt; (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;*CS&lt;/code&gt;)&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SQL_TXN_REPEATABLE_READ&lt;/code&gt; (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;*ALL&lt;/code&gt; or &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;*RS&lt;/code&gt;)&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SQL_TXN_SERIALIZABLE&lt;/code&gt; (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;*RR&lt;/code&gt;)&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SQL_TXN_NO_COMMIT&lt;/code&gt; (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;*NONE&lt;/code&gt; or &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;*NC&lt;/code&gt;)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Here’s an example using this new functionality:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;ibm_db_dbi&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db2&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;conn&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;connect&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;conn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;set_option&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SQL_ATTR_TXN_ISOLATION&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+                  &lt;span class=&quot;n&quot;&gt;db2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;SQL_TXN_NO_COMMIT&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;cur&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;conn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cursor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;cur&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;execute&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'create table qtemp.foo(i int)'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;cur&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;execute&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'insert into qtemp.foo values(1)'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name>Kevin Adler</name></author><summary type="html">When using the Python ibm_db package to interact with the Db2 for i database, you may run in to this error:</summary></entry><entry><title type="html">Calling QSH utilities from PASE</title><link href="https://kadler.github.io/2018/05/29/calling-qsh-utilities-from-pase.html" rel="alternate" type="text/html" title="Calling QSH utilities from PASE" /><published>2018-05-29T10:43:00-05:00</published><updated>2018-05-29T10:43:00-05:00</updated><id>https://kadler.github.io/2018/05/29/calling-qsh-utilities-from-pase</id><content type="html" xml:base="https://kadler.github.io/2018/05/29/calling-qsh-utilities-from-pase.html">&lt;p&gt;QSH provides a wonderful utility called &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;db2&lt;/code&gt; which allows you to run SQL queries from within the QSH shell, but what if you’re in a QP2TERM shell or using SSH - what then?&lt;/p&gt;
+
+&lt;h2 id=&quot;qsh-from-pase&quot;&gt;QSH from PASE&lt;/h2&gt;
+
+&lt;p&gt;Well, PASE provides a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;qsh&lt;/code&gt; utility which allows you to call programs within the QSH environment. Like most shells, QSH provides a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;-c&lt;/code&gt; option, which allows you to pass a string of commands to be executed instead of reading from &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;stdin&lt;/code&gt;, so we can call &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;db2&lt;/code&gt; like so:&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;-bash-4&lt;/span&gt;.3&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;qsh &lt;span class=&quot;nt&quot;&gt;-c&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;db2 'select 30 from sysibm.sysdummy1'&quot;&lt;/span&gt;
+
+00001      
+&lt;span class=&quot;nt&quot;&gt;-----------&lt;/span&gt;
+         30
+
+  1 RECORD&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;S&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; SELECTED.
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Notice that we had to quote the commands twice. What happens if we need to use quotes inside our SQL?&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;-bash-4&lt;/span&gt;.3&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;qsh &lt;span class=&quot;nt&quot;&gt;-c&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;db2 &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;select message_id, message_timestamp from table(qsys2.joblog_info('*')) x&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+
+MESSAGE_ID  MESSAGE_TIMESTAMP         
+&lt;span class=&quot;nt&quot;&gt;-----------&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--------------------------&lt;/span&gt;
+CPC7301     2018-05-29-10.50.07.842411
+
+  1 RECORD&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;S&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; SELECTED.
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Since you can’t escape inside a single-quoted string, we had to switch to using double quotes around the SQL statement and then had to escape those, since they’re inside a double quoted string already. This is starting to get messy. Now what if we need to use delimited names?&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;-bash-4&lt;/span&gt;.3&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;qsh &lt;span class=&quot;nt&quot;&gt;-c&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;db2 &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;select message_id, message_timestamp from table(&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\\\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;QSYS2&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\\\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\\\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;JOBLOG_INFO&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\\\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;('*')) x&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+
+MESSAGE_ID  MESSAGE_TIMESTAMP         
+&lt;span class=&quot;nt&quot;&gt;-----------&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--------------------------&lt;/span&gt;
+CPC7301     2018-05-29-10.52.08.632485
+
+  1 RECORD&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;S&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; SELECTED.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Ugh! Now we had to double-escape the quoted strings! That’s nearly vomit inducing!&lt;/p&gt;
+
+&lt;h2 id=&quot;symlink-trickery&quot;&gt;Symlink Trickery&lt;/h2&gt;
+
+&lt;p&gt;One thing you may not have realized is that the PASE &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;qsh&lt;/code&gt; utility has a few tricks up its sleeve. Try this:&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;-bash-4&lt;/span&gt;.3&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ln&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-s&lt;/span&gt; /QOpenSys/usr/bin/qsh /QOpenSys/usr/bin/db2
+&lt;span class=&quot;nt&quot;&gt;-bash-4&lt;/span&gt;.3&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;db2 &lt;span class=&quot;s2&quot;&gt;&quot;select message_id, message_timestamp from table(&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;QSYS2&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;JOBLOG_INFO&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;('*')) x&quot;&lt;/span&gt;
+
+MESSAGE_ID  MESSAGE_TIMESTAMP         
+&lt;span class=&quot;nt&quot;&gt;-----------&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--------------------------&lt;/span&gt;
+CPD000D     2018-05-29-10.54.07.331486
+CPC7301     2018-05-29-10.54.07.335762
+
+  2 RECORD&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;S&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; SELECTED.
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Now you can call db2 “directly” and everything just works! No messing with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;qsh -c&lt;/code&gt; and less escaping. But how does it work?&lt;/p&gt;
+
+&lt;h2 id=&quot;diving-under-the-hood&quot;&gt;Diving Under the Hood&lt;/h2&gt;
+
+&lt;p&gt;The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;qsh&lt;/code&gt; PASE command is actually a shell script and it has special code to check what the first argument was. The first argument, being stored at index 0 is the name and path of the program which was run (in shell scripts, this is the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;$0&lt;/code&gt; variable). By creating a symlink to the same shell script called &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;db2&lt;/code&gt;, when it gets called it will think it’s the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;db2&lt;/code&gt; program instead of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;qsh&lt;/code&gt;. Thus, instead of calling &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/usr/bin/qsh&lt;/code&gt;, the script will call &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/usr/bin/db2&lt;/code&gt; instead! You can do this with any IBM i program you want, so long as there’s a symlink in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/usr/bin&lt;/code&gt; (just be aware that for RPG and CL programs, the parameters need to be padded out).&lt;/p&gt;
+
+&lt;p&gt;One thing to note is that when you call programs this way instead of using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;qsh -c&lt;/code&gt;, they will run in a multi-threaded job, which may give you issues. If that is a problem, you can always make a copy of the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;qsh&lt;/code&gt; script and remove the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;-i&lt;/code&gt; argument to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;system&lt;/code&gt; on the last line of the script, then symlink to your &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;qsh&lt;/code&gt; copy instead. This will cause &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;system&lt;/code&gt; to execute in a new job, just as &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;qsh -c&lt;/code&gt; would have.&lt;/p&gt;
+
+&lt;h2 id=&quot;use-it-or-lose-it&quot;&gt;Use it or Lose it&lt;/h2&gt;
+
+&lt;p&gt;Just remember that the program name is an argument just like any other and you can take advantage of it in your own programs! In shell scripts you can use the special variable &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;$0&lt;/code&gt;; in Python use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sys.argv[0]&lt;/code&gt;; and in C/C++ it’s in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;argv[0]&lt;/code&gt; (in PASE this gives you &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/path/to/program&lt;/code&gt;, while in ILE it gives you &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;LIBRARY/PROGRAM&lt;/code&gt;).&lt;/p&gt;
+
+&lt;p&gt;Are there any situations you can think of where this would be useful?&lt;/p&gt;</content><author><name>Kevin Adler</name></author><summary type="html">QSH provides a wonderful utility called db2 which allows you to run SQL queries from within the QSH shell, but what if you’re in a QP2TERM shell or using SSH - what then?</summary></entry></feed>
